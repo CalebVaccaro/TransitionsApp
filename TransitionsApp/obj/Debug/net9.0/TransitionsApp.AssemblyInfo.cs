@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TransitionsApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8444b701ebce11516287eca25191cdb516c60127")]
 [assembly: System.Reflection.AssemblyProductAttribute("TransitionsApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TransitionsApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

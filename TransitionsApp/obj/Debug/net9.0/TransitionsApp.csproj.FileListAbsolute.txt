@@ -12,3 +12,4 @@
 /Volumes/x/dev/TransitionsApp/TransitionsApp/obj/Debug/net9.0/TransitionsApp.pdb
 /Volumes/x/dev/TransitionsApp/TransitionsApp/obj/Debug/net9.0/TransitionsApp.genruntimeconfig.cache
 /Volumes/x/dev/TransitionsApp/TransitionsApp/obj/Debug/net9.0/ref/TransitionsApp.dll
+/Volumes/x/dev/TransitionsApp/TransitionsApp/obj/Debug/net9.0/TransitionsApp.sourcelink.json

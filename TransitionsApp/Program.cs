@@ -1,26 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Text.Json;
 
 class Song
 {
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
     public int Bpm { get; set; }
     public string Key { get; set; }
-    public List<Song> Transitions { get; set; } = new();
 
     public void Display()
     {
-        Console.WriteLine($"- {Name} | BPM: {Bpm} | Key: {Key}");
+        Console.WriteLine($"- {Name} | BPM: {Bpm} | Key: {Key} | ID: {Id}");
     }
+}
+
+class Transition
+{
+    public string FromSongId { get; set; }
+    public List<string> ToSongIds { get; set; } = new();
 }
 
 class Program
 {
     static List<Song> songs = new();
+    static List<Transition> transitions = new();
+
+    static readonly string songsFile = Path.Combine(AppContext.BaseDirectory, "songs.json");
+    static readonly string transitionsFile = Path.Combine(AppContext.BaseDirectory, "transitions.json");
 
     static void Main()
     {
+        LoadSongs();
+        LoadTransitions();
+
         while (true)
         {
             Console.WriteLine("\n🎵 Song Transition Manager");
@@ -39,7 +50,10 @@ class Program
                 case "2": ViewAllSongs(); break;
                 case "3": LinkTransition(); break;
                 case "4": ViewTransitions(); break;
-                case "5": return;
+                case "5":
+                    SaveSongs();
+                    SaveTransitions();
+                    return;
                 case "6": ImportSongsFromFolder(); break;
                 default: Console.WriteLine("Invalid choice."); break;
             }
@@ -108,13 +122,20 @@ class Program
             return;
         }
 
-        Song from = songs[fromIndex - 1];
-        Song to = songs[toIndex - 1];
+        string fromId = songs[fromIndex - 1].Id;
+        string toId = songs[toIndex - 1].Id;
 
-        if (!from.Transitions.Contains(to))
+        var transition = transitions.FirstOrDefault(t => t.FromSongId == fromId);
+        if (transition == null)
         {
-            from.Transitions.Add(to);
-            Console.WriteLine($"🔗 Linked '{from.Name}' to '{to.Name}'");
+            transition = new Transition { FromSongId = fromId };
+            transitions.Add(transition);
+        }
+
+        if (!transition.ToSongIds.Contains(toId))
+        {
+            transition.ToSongIds.Add(toId);
+            Console.WriteLine($"🔗 Linked '{songs[fromIndex - 1].Name}' to '{songs[toIndex - 1].Name}'");
         }
         else
         {
@@ -132,17 +153,22 @@ class Program
             return;
         }
 
-        Song song = songs[index - 1];
+        var song = songs[index - 1];
+        var transition = transitions.FirstOrDefault(t => t.FromSongId == song.Id);
+
         Console.WriteLine($"\n➡️ Transitions from '{song.Name}':");
 
-        if (song.Transitions.Count == 0)
+        if (transition == null || transition.ToSongIds.Count == 0)
         {
             Console.WriteLine("No transitions linked yet.");
         }
         else
         {
-            foreach (var s in song.Transitions)
-                s.Display();
+            foreach (var id in transition.ToSongIds)
+            {
+                var target = songs.FirstOrDefault(s => s.Id == id);
+                if (target != null) target.Display();
+            }
         }
     }
 
@@ -160,7 +186,7 @@ class Program
         var audioFiles = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
             .Where(f =>
                 (f.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
-                f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) &&
+                 f.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) &&
                 !Path.GetFileName(f).StartsWith("._"))
             .ToList();
 
@@ -175,13 +201,12 @@ class Program
         {
             string fileName = Path.GetFileNameWithoutExtension(file);
 
-            // Avoid duplicates
             if (!songs.Any(s => s.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase)))
             {
                 songs.Add(new Song
                 {
                     Name = fileName,
-                    Bpm = 0, // Default until filled manually
+                    Bpm = 0,
                     Key = "Unknown"
                 });
                 added++;
@@ -189,5 +214,35 @@ class Program
         }
 
         Console.WriteLine($"✅ Imported {added} new songs from folder.");
+    }
+
+    static void SaveSongs()
+    {
+        var json = JsonSerializer.Serialize(songs, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(songsFile, json);
+    }
+
+    static void SaveTransitions()
+    {
+        var json = JsonSerializer.Serialize(transitions, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(transitionsFile, json);
+    }
+
+    static void LoadSongs()
+    {
+        if (File.Exists(songsFile))
+        {
+            var json = File.ReadAllText(songsFile);
+            songs = JsonSerializer.Deserialize<List<Song>>(json) ?? new List<Song>();
+        }
+    }
+
+    static void LoadTransitions()
+    {
+        if (File.Exists(transitionsFile))
+        {
+            var json = File.ReadAllText(transitionsFile);
+            transitions = JsonSerializer.Deserialize<List<Transition>>(json) ?? new List<Transition>();
+        }
     }
 }
