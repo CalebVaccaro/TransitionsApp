@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-class Song
+public class Song
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
@@ -9,11 +9,13 @@ class Song
 
     public void Display()
     {
-        Console.WriteLine($"- {Name} | BPM: {Bpm} | Key: {Key} | ID: {Id}");
+        Console.WriteLine($"{Name}");
     }
+
+    public override string ToString() => $"{Name}";
 }
 
-class Transition
+public class Transition
 {
     public string FromSongId { get; set; }
     public List<string> ToSongIds { get; set; } = new();

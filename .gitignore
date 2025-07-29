@@ -1,1 +1,129 @@
-/.DS_Store
+#######################################################
+## .NET Build Artifacts
+#######################################################
+[Bb]in/
+[Oo]bj/
+artifacts/
+out/
+publish/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.mdb
+
+#######################################################
+## Avalonia Specific (generated UI artifacts)
+#######################################################
+*.g.cs
+*.g.i.cs
+*.xaml.cs
+*.xaml.g.cs
+*.xaml.g.i.cs
+.g/
+.g.i/
+
+#######################################################
+## Visual Studio (Windows & Mac)
+#######################################################
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+*.dbmdl
+*.psess
+*.vsp
+*.vspx
+*.pidb
+*.opendb
+*.tlog
+*.sdf
+*.cachefile
+
+# IDE helper files
+*.ncb
+*.sbr
+*.scc
+*.orig
+
+# Visual Studio Code for Mac specific
+*.code-workspace
+
+#######################################################
+## JetBrains Rider
+#######################################################
+.idea/
+*.sln.iml
+
+#######################################################
+## macOS System Files
+#######################################################
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+#######################################################
+## NuGet
+#######################################################
+*.nupkg
+*.snupkg
+*.nuspec
+*.psmdcp
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+project.assets.json
+PackageLock.json
+
+#######################################################
+## Logs & Diagnostics
+#######################################################
+*.log
+*.vspscc
+*.vssscc
+*.testlog
+*.trx
+*.coverage
+*.coveragexml
+
+#######################################################
+## DotCover / JetBrains Diagnostics
+#######################################################
+*.dotCover
+*.dotTrace
+*.dotMemory
+*.dotCoverData
+
+#######################################################
+## Configuration Files (Local)
+#######################################################
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+#######################################################
+## Others
+#######################################################
+TestResults/
+_ReSharper*/
+[Rr]e[Ss]harper/
+*.tmp
+*.bak
+*~
+*.swp
+
+#######################################################
+## Optional: Global.json if not shared
+#######################################################
+global.json

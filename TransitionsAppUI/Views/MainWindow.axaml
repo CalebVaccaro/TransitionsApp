@@ -1,0 +1,132 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="TransitionsAppUI.MainWindow"
+        Title="🎵 Song Transition Manager"
+        Width="1000" Height="700"
+        MinWidth="800" MinHeight="600"
+        Background="#1e1e2f"
+        Padding="20">
+
+  <DockPanel LastChildFill="True">
+
+    <!-- Top Header -->
+    <StackPanel Orientation="Horizontal"
+                DockPanel.Dock="Top"
+                Margin="0 0 0 12"
+                Spacing="10">
+      <Image Source="avares://TransitionsAppUI/Assets/logo.png"
+             Width="32" Height="32"/>
+      <TextBlock Text="Song Transition Manager"
+                 FontSize="20"
+                 FontWeight="Bold"
+                 Foreground="White"
+                 VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <!-- Top Bar (Add + Import) -->
+    <StackPanel Orientation="Horizontal"
+                DockPanel.Dock="Top"
+                Spacing="16"
+                Margin="0 0 0 12">
+      <!-- Add Song -->
+      <Border Background="#2a2a3a" Padding="14" CornerRadius="8" HorizontalAlignment="Stretch" MinWidth="600">
+        <StackPanel>
+          <TextBlock Text="🎶 Add New Song" FontSize="17" FontWeight="Bold" Foreground="White"/>
+          <UniformGrid Columns="4" ColumnSpacing="8" Margin="0,8,0,0">
+            <TextBox Name="NameTextBox" Watermark="Song Name"/>
+            <TextBox Name="BpmTextBox" Watermark="BPM"/>
+            <TextBox Name="KeyTextBox" Watermark="Key (e.g. A Minor)"/>
+            <Button Name="AddSongButton" Content="Add Song"/>
+          </UniformGrid>
+        </StackPanel>
+      </Border>
+
+      <!-- Import -->
+      <Border Background="#2a2a3a" Padding="14" CornerRadius="8" VerticalAlignment="Bottom">
+        <Button Name="ImportFolderButton"
+                Content="📂 Import Songs from Folder"
+                Background="#3a3a4a"
+                Foreground="White"
+                FontWeight="Bold"
+                Padding="8,4"
+                MinWidth="180"
+                CornerRadius="6"/>
+      </Border>
+    </StackPanel>
+
+    <!-- Main Columns Layout -->
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+      <Grid ColumnDefinitions="3*,3*,2*" ColumnSpacing="16" VerticalAlignment="Stretch" Height="Auto">
+
+        <!-- Column 1: Song Management -->
+        <StackPanel Grid.Column="0" Spacing="16" VerticalAlignment="Stretch">
+          <!-- Search -->
+          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="🔍 Search Songs" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Name="SearchTextBox" Watermark="Search by Name"/>
+                <Button Name="SearchButton" Content="Search"/>
+                <Button Name="ClearButton" Content="Clear"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <!-- Songs List -->
+          <Border Background="#2a2a3a" CornerRadius="8" Padding="14" VerticalAlignment="Stretch">
+            <StackPanel Spacing="10" VerticalAlignment="Stretch">
+              <TextBlock Text="🎵 Songs List" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <ListBox Name="SongsListBox" Background="#1e1e2f" Foreground="White" Height="200"/>
+              <Button Name="AddFromSongListButton" Content="➕ Add to Set List"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Column 2: Transitions -->
+        <StackPanel Grid.Column="1" Spacing="16" VerticalAlignment="Stretch">
+          <!-- Link Songs -->
+          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="🔗 Link Songs for Transition" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <UniformGrid Columns="2" Rows="2" ColumnSpacing="10" RowSpacing="10">
+                <TextBox Name="FromSearchBox" Watermark="Search From Song"/>
+                <TextBox Name="ToSearchBox" Watermark="Search To Song"/>
+                <ComboBox Name="FromSongComboBox"/>
+                <ComboBox Name="ToSongComboBox"/>
+              </UniformGrid>
+              <Button Name="LinkButton" Content="Link Songs" Width="120" HorizontalAlignment="Left"/>
+            </StackPanel>
+          </Border>
+
+          <!-- View Transitions -->
+          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
+            <StackPanel Spacing="10">
+              <TextBlock Text="➡️ View Transitions from Song" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <UniformGrid Columns="2" ColumnSpacing="10">
+                <TextBox Name="ViewSearchBox" Watermark="Search View Song"/>
+                <ComboBox Name="ViewTransitionsComboBox"/>
+              </UniformGrid>
+              <Button Name="ViewTransitionsButton" Content="View Transitions" Width="160" Margin="0,6,0,0"/>
+              <ListBox Name="TransitionsListBox" Background="#1e1e2f" Foreground="White" Height="160"/>
+              <Button Name="AddFromTransitionListButton" Content="➕ Add to Set List"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Column 3: Set List -->
+        <Border Grid.Column="2" Background="#2a2a3a" CornerRadius="8" Padding="16" VerticalAlignment="Stretch">
+          <StackPanel Spacing="14" VerticalAlignment="Stretch">
+            <TextBlock Text="📝 Set List" FontSize="18" FontWeight="Bold" Foreground="White"/>
+            <ListBox Name="SetListBox" Background="#1e1e2f" Foreground="White" Height="300"/>
+            <Button Name="RemoveSelectedSetListButton" Content="❌ Remove Selected" Background="#993333" Foreground="White"/>
+            <Button Name="SaveSetListButton" Content="💾 Save Set List" Background="#2e8b57" Foreground="White"/>
+            <Button Name="LoadSetListButton" Content="📂 Load Set List" Background="#336699" Foreground="White"/>
+            <Button Name="ClearSetListButton" Content="🗑 Clear Set List" Background="#4a4a4a" Foreground="White"/>
+          </StackPanel>
+        </Border>
+
+      </Grid>
+    </ScrollViewer>
+
+  </DockPanel>
+</Window>
