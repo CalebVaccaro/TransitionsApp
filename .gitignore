@@ -127,3 +127,9 @@ _ReSharper*/
 ## Optional: Global.json if not shared
 #######################################################
 global.json
+
+#######################################################
+## Optional: Ignore specific files or directories
+#######################################################
+/.DS_Store
+/.idea/

@@ -23,7 +23,7 @@
                  VerticalAlignment="Center"/>
     </StackPanel>
 
-    <!-- Top Bar (Add + Import) -->
+    <!-- Add + Import Section -->
     <StackPanel Orientation="Horizontal"
                 DockPanel.Dock="Top"
                 Spacing="16"
@@ -54,9 +54,11 @@
       </Border>
     </StackPanel>
 
-    <!-- Main Columns Layout -->
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-      <Grid ColumnDefinitions="3*,3*,2*" ColumnSpacing="16" VerticalAlignment="Stretch" Height="Auto">
+    <!-- Main Content Layout -->
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+      <Grid ColumnDefinitions="3*,3*,2*" ColumnSpacing="16"
+            RowDefinitions="*"
+            VerticalAlignment="Stretch">
 
         <!-- Column 1: Song Management -->
         <StackPanel Grid.Column="0" Spacing="16" VerticalAlignment="Stretch">
@@ -67,7 +69,7 @@
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBox Name="SearchTextBox" Watermark="Search by Name"/>
                 <Button Name="SearchButton" Content="Search"/>
-                <Button Name="ClearButton" Content="Clear"/>
+                <Button x:Name="ClearSearchButton" Content="Clear" Click="ClearSearchButton_Click" />
               </StackPanel>
             </StackPanel>
           </Border>
@@ -76,8 +78,8 @@
           <Border Background="#2a2a3a" CornerRadius="8" Padding="14" VerticalAlignment="Stretch">
             <StackPanel Spacing="10" VerticalAlignment="Stretch">
               <TextBlock Text="🎵 Songs List" FontSize="17" FontWeight="Bold" Foreground="White"/>
-              <ListBox Name="SongsListBox" Background="#1e1e2f" Foreground="White" Height="200"/>
               <Button Name="AddFromSongListButton" Content="➕ Add to Set List"/>
+              <ListBox Name="SongsListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
             </StackPanel>
           </Border>
         </StackPanel>
@@ -99,15 +101,15 @@
           </Border>
 
           <!-- View Transitions -->
-          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
-            <StackPanel Spacing="10">
+          <Border Background="#2a2a3a" CornerRadius="8" Padding="14" VerticalAlignment="Stretch">
+            <StackPanel Spacing="10" VerticalAlignment="Stretch">
               <TextBlock Text="➡️ View Transitions from Song" FontSize="17" FontWeight="Bold" Foreground="White"/>
               <UniformGrid Columns="2" ColumnSpacing="10">
                 <TextBox Name="ViewSearchBox" Watermark="Search View Song"/>
                 <ComboBox Name="ViewTransitionsComboBox"/>
               </UniformGrid>
               <Button Name="ViewTransitionsButton" Content="View Transitions" Width="160" Margin="0,6,0,0"/>
-              <ListBox Name="TransitionsListBox" Background="#1e1e2f" Foreground="White" Height="160"/>
+              <ListBox Name="TransitionsListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
               <Button Name="AddFromTransitionListButton" Content="➕ Add to Set List"/>
             </StackPanel>
           </Border>
@@ -117,7 +119,7 @@
         <Border Grid.Column="2" Background="#2a2a3a" CornerRadius="8" Padding="16" VerticalAlignment="Stretch">
           <StackPanel Spacing="14" VerticalAlignment="Stretch">
             <TextBlock Text="📝 Set List" FontSize="18" FontWeight="Bold" Foreground="White"/>
-            <ListBox Name="SetListBox" Background="#1e1e2f" Foreground="White" Height="300"/>
+            <ListBox Name="SetListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
             <Button Name="RemoveSelectedSetListButton" Content="❌ Remove Selected" Background="#993333" Foreground="White"/>
             <Button Name="SaveSetListButton" Content="💾 Save Set List" Background="#2e8b57" Foreground="White"/>
             <Button Name="LoadSetListButton" Content="📂 Load Set List" Background="#336699" Foreground="White"/>

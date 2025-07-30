@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,6 +43,7 @@ namespace TransitionsAppUI
             SaveSetListButton.Click += SaveSetListButton_Click;
             RemoveSelectedSetListButton.Click += (_, __) => RemoveSelectedSongFromSetList();
             LoadSetListButton.Click += async (_, __) => await LoadSetListFromFileAsync();
+            ClearSearchButton.Click += ClearSearchButton_Click;
         }
 
         private void AddSongButton_Click(object? sender, RoutedEventArgs e)
@@ -123,7 +123,7 @@ namespace TransitionsAppUI
 
                 var linkedSongs = songs
                     .Where(s => transition.ToSongIds.Contains(s.Id))
-                    .Select(s => $"{s.Name} | BPM: {s.Bpm} | Key: {s.Key}")
+                    .Select(s => $"{s.Name}")
                     .ToList();
 
                 TransitionsListBox.ItemsSource = linkedSongs;
@@ -161,7 +161,7 @@ namespace TransitionsAppUI
                 : songs.Where(s => s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
 
             SongsListBox.ItemsSource = filtered
-                .Select(s => $"{s.Name} | BPM: {s.Bpm} | Key: {s.Key}")
+                .Select(s => $"{s.Name}")
                 .ToList();
         }
 
@@ -364,7 +364,7 @@ namespace TransitionsAppUI
             if (!string.IsNullOrWhiteSpace(filePath))
             {
                 var namesOnly = setList.Select(s => s.Name);
-                File.WriteAllLines(filePath, namesOnly);
+                await File.WriteAllLinesAsync(filePath, namesOnly);
                 ShowMessage("Set list saved.");
             }
         }
@@ -384,7 +384,7 @@ namespace TransitionsAppUI
 
                     // Refresh the displayed set list
                     SetListBox.ItemsSource = setList
-                        .Select(s => $"{s.Name} | BPM: {s.Bpm} | Key: {s.Key}")
+                        .Select(s => $"{s.Name}")
                         .ToList();
                 }
             }
@@ -406,7 +406,7 @@ namespace TransitionsAppUI
             if (filePaths == null || filePaths.Length == 0)
                 await Task.CompletedTask;
 
-            var lines = File.ReadAllLines(filePaths[0]);
+            var lines = await File.ReadAllLinesAsync(filePaths[0]);
             var matchedSongs = songs
                 .Where(s => lines.Any(line => line.Equals(s.Name, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
@@ -414,6 +414,16 @@ namespace TransitionsAppUI
             setList.Clear();
             setList.AddRange(matchedSongs);
             RefreshSetList();
+        }
+
+        private void ClearSearchButton_Click(object? sender, RoutedEventArgs e)
+        {
+            SearchTextBox.Text = string.Empty;
+
+            // Restore full song list
+            SongsListBox.ItemsSource = songs
+                .Select(s => $"{s.Name} | BPM: {s.Bpm} | Key: {s.Key}")
+                .ToList();
         }
     }
 }
