@@ -422,7 +422,7 @@ namespace TransitionsAppUI
 
             // Restore full song list
             SongsListBox.ItemsSource = songs
-                .Select(s => $"{s.Name} | BPM: {s.Bpm} | Key: {s.Key}")
+                .Select(s => $"{s.Name}")
                 .ToList();
         }
     }
