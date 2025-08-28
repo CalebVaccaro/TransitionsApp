@@ -18,18 +18,22 @@ namespace TransitionsAppUI
         private string SongsFile => Path.Combine(AppContext.BaseDirectory, "songs.json");
         private string TransitionsFile => Path.Combine(AppContext.BaseDirectory, "transitions.json");
 
+        private List<string> watchedFolders = new();
+        private string WatchedFoldersFile => Path.Combine(AppContext.BaseDirectory, "watchedFolders.json");
+
         public MainWindow()
         {
             InitializeComponent();
 
             LoadSongs();
             LoadTransitions();
+            LoadWatchedFolders(); 
             RefreshUI();
 
-            AddSongButton.Click += AddSongButton_Click;
+            //AddSongButton.Click += AddSongButton_Click;
             LinkButton.Click += LinkButton_Click;
             ViewTransitionsButton.Click += ViewTransitionsButton_Click;
-            ImportFolderButton.Click += ImportFolderButton_Click;
+            //ImportFolderButton.Click += ImportFolderButton_Click;
             SearchButton.Click += SearchButton_Click;
             FromSongComboBox.DropDownOpened += (_, __) => fromBoxTouched = true;
             ToSongComboBox.DropDownOpened += (_, __) => toBoxTouched = true;
@@ -44,35 +48,39 @@ namespace TransitionsAppUI
             RemoveSelectedSetListButton.Click += (_, __) => RemoveSelectedSongFromSetList();
             LoadSetListButton.Click += async (_, __) => await LoadSetListFromFileAsync();
             ClearSearchButton.Click += ClearSearchButton_Click;
+            SongsListBox.SelectionChanged += SongsListBox_SelectionChanged;
+            AddWatchFolderButton.Click += AddWatchFolderButton_Click;
+            RemoveWatchFolderButton.Click += RemoveWatchFolderButton_Click;
+            ScanWatchedFoldersButton.Click += ScanWatchedFoldersButton_Click;
         }
 
-        private void AddSongButton_Click(object? sender, RoutedEventArgs e)
-        {
-            string name = NameTextBox.Text?.Trim() ?? "";
-            if (!int.TryParse(BpmTextBox.Text, out int bpm))
-            {
-                ShowMessage("Invalid BPM");
-                return;
-            }
-            string key = KeyTextBox.Text?.Trim() ?? "";
+        // private void AddSongButton_Click(object? sender, RoutedEventArgs e)
+        // {
+        //     string name = CleanSongName(NameTextBox.Text?.Trim() ?? "");
+        //     if (!int.TryParse(BpmTextBox.Text, out int bpm))
+        //     {
+        //         ShowMessage("Invalid BPM");
+        //         return;
+        //     }
+        //     string key = KeyTextBox.Text?.Trim() ?? "";
 
-            if (string.IsNullOrEmpty(name))
-            {
-                ShowMessage("Song Name cannot be empty");
-                return;
-            }
+        //     if (string.IsNullOrEmpty(name))
+        //     {
+        //         ShowMessage("Song Name cannot be empty");
+        //         return;
+        //     }
 
-            if (songs.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-            {
-                ShowMessage("Song already exists");
-                return;
-            }
+        //     if (songs.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        //     {
+        //         ShowMessage("Song already exists");
+        //         return;
+        //     }
 
-            songs.Add(new Song { Name = name, Bpm = bpm, Key = key });
-            SaveSongs();
-            RefreshUI();
-            ClearAddSongFields();
-        }
+        //     songs.Add(new Song { Name = name, Bpm = bpm, Key = key });
+        //     SaveSongs();
+        //     RefreshUI();
+        //     ClearAddSongFields();
+        // }
 
         private void LinkButton_Click(object? sender, RoutedEventArgs e)
         {
@@ -96,6 +104,7 @@ namespace TransitionsAppUI
                     transition.ToSongIds.Add(toSong.Id);
                     SaveTransitions();
                     ShowMessage($"Linked '{fromSong.Name}' → '{toSong.Name}'");
+                    ViewTransitions();
                 }
                 else
                 {
@@ -108,29 +117,56 @@ namespace TransitionsAppUI
             }
         }
 
-        private void ViewTransitionsButton_Click(object? sender, RoutedEventArgs e)
+        private void ViewTransitions()
         {
             if (ViewTransitionsComboBox.SelectedItem is Song selectedSong)
             {
-                var transition = transitions.FirstOrDefault(t => t.FromSongId == selectedSong.Id);
-
-                if (transition == null || transition.ToSongIds.Count == 0)
-                {
-                    TransitionsListBox.ItemsSource = Array.Empty<string>();
-                    ShowMessage("No transitions for this song");
-                    return;
-                }
-
-                var linkedSongs = songs
-                    .Where(s => transition.ToSongIds.Contains(s.Id))
-                    .Select(s => $"{s.Name}")
-                    .ToList();
-
-                TransitionsListBox.ItemsSource = linkedSongs;
+                ShowTransitionsFor(selectedSong);
             }
             else
             {
                 ShowMessage("Select a song to view transitions");
+            }
+        }
+
+        private void ViewTransitionsButton_Click(object? sender, RoutedEventArgs e)
+        {
+            ViewTransitions();
+        }
+
+        private void ShowTransitionsFor(Song selectedSong)
+        {
+            var transition = transitions.FirstOrDefault(t => t.FromSongId == selectedSong.Id);
+
+            if (transition == null || transition.ToSongIds.Count == 0)
+            {
+                TransitionsListBox.ItemsSource = Array.Empty<string>();
+                //ShowMessage("No transitions for this song");
+                return;
+            }
+
+            var linkedSongs = songs
+                .Where(s => transition.ToSongIds.Contains(s.Id))
+                .Select(s => $"{s.Name}")
+                .ToList();
+
+            TransitionsListBox.ItemsSource = linkedSongs;
+        }
+
+        private void SongsListBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (SongsListBox.SelectedItem is string label)
+            {
+                string name = label.Split('|')[0].Trim();
+                var song = songs.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (song != null)
+                {
+                    // Set FromSong and ViewTransitions
+                    FromSongComboBox.SelectedItem = song;
+                    ViewTransitionsComboBox.SelectedItem = song;
+                    // Immediately enact ViewTransitions logic
+                    ViewTransitions();
+                }
             }
         }
 
@@ -177,14 +213,15 @@ namespace TransitionsAppUI
             ViewTransitionsComboBox.SelectedIndex = -1;
 
             RefreshSetList();
+            RefreshWatchedFoldersUI(); 
         }
 
-        private void ClearAddSongFields()
-        {
-            NameTextBox.Text = "";
-            BpmTextBox.Text = "";
-            KeyTextBox.Text = "";
-        }
+        // private void ClearAddSongFields()
+        // {
+        //     NameTextBox.Text = "";
+        //     BpmTextBox.Text = "";
+        //     KeyTextBox.Text = "";
+        // }
 
         private void ShowMessage(string msg)
         {
@@ -232,12 +269,12 @@ namespace TransitionsAppUI
             }
         }
 
-        private void AddSongsFromDirectory(string folderPath)
+        private int AddSongsFromDirectory(string folderPath, bool saveAndRefresh = true, bool showMessage = true)
         {
             if (!Directory.Exists(folderPath))
             {
-                ShowMessage("Directory does not exist.");
-                return;
+                if (showMessage) ShowMessage("Directory does not exist.");
+                return 0;
             }
 
             var audioFiles = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
@@ -249,20 +286,21 @@ namespace TransitionsAppUI
 
             if (audioFiles.Count == 0)
             {
-                ShowMessage("No .mp3 or .wav files found.");
-                return;
+                if (showMessage) ShowMessage("No .mp3 or .wav files found.");
+                return 0;
             }
 
             int added = 0;
             foreach (var file in audioFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(file);
+                string cleaned = CleanSongName(fileName);
 
-                if (!songs.Any(s => s.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase)))
+                if (!songs.Any(s => s.Name.Equals(cleaned, StringComparison.OrdinalIgnoreCase)))
                 {
                     songs.Add(new Song
                     {
-                        Name = fileName,
+                        Name = cleaned,
                         Bpm = 0,
                         Key = "Unknown"
                     });
@@ -270,12 +308,19 @@ namespace TransitionsAppUI
                 }
             }
 
-            SaveSongs();
-            RefreshUI();
-            FilterFromDropdown();  // Refresh filtered dropdowns
-            FilterToDropdown();
-            FilterViewDropdown();
-            ShowMessage($"Imported {added} new songs.");
+            if (saveAndRefresh)
+            {
+                SaveSongs();
+                RefreshUI();
+                FilterFromDropdown();
+                FilterToDropdown();
+                FilterViewDropdown();
+            }
+
+            if (showMessage)
+                ShowMessage($"Imported {added} new songs.");
+
+            return added;
         }
 
         private void AddSongToSetFrom(ListBox sourceList)
@@ -424,6 +469,212 @@ namespace TransitionsAppUI
             SongsListBox.ItemsSource = songs
                 .Select(s => $"{s.Name}")
                 .ToList();
+        }
+
+        private void RemoveSongButton_Click(object? sender, RoutedEventArgs e)
+        {
+            // Copy selected items first
+            var selectedItems = SongsListBox.SelectedItems?.Cast<string>().ToList();
+            if (selectedItems == null || selectedItems.Count == 0)
+                return;
+
+            // Use a hash set for performance when checking if a song is selected
+            var selectedNames = selectedItems
+                .Select(label => label.Split('|')[0].Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // Filter songs to remove
+            var songsToRemove = songs
+                .Where(s => selectedNames.Contains(s.Name))
+                .ToList();
+
+            foreach (var songToRemove in songsToRemove)
+            {
+                songs.Remove(songToRemove);
+                transitions.RemoveAll(t => t.FromSongId == songToRemove.Id || t.ToSongIds.Contains(songToRemove.Id));
+
+                // Remove from combo boxes
+                if (ViewTransitionsComboBox.ItemsSource is IEnumerable<Song> viewList)
+                {
+                    ViewTransitionsComboBox.ItemsSource = viewList.Where(s => s.Id != songToRemove.Id).ToList();
+                }
+
+                if (FromSongComboBox.ItemsSource is IEnumerable<Song> fromList)
+                {
+                    FromSongComboBox.ItemsSource = fromList.Where(s => s.Id != songToRemove.Id).ToList();
+                }
+
+                if (ToSongComboBox.ItemsSource is IEnumerable<Song> toList)
+                {
+                    ToSongComboBox.ItemsSource = toList.Where(s => s.Id != songToRemove.Id).ToList();
+                }
+
+                if (setList.Contains(songToRemove))
+                {
+                    setList.Remove(songToRemove);
+                }
+            }
+
+            // Save changes and refresh UI once at the end
+            SaveSongs();
+            SaveTransitions();
+            RefreshSetList();
+            RefreshUI();
+            ShowMessage($"{songsToRemove.Count} song(s) removed.");
+        }
+
+        public static string CleanSongName(string rawName)
+        {
+            if (string.IsNullOrWhiteSpace(rawName)) return rawName;
+
+            string cleaned = rawName.Trim();
+
+            // 1) Basic normalization
+            cleaned = cleaned.Replace('_', ' ');
+
+            // 2) Remove known junk anywhere it appears
+            string[] junk = {
+                "SoundLoadMate.com", "YouTube", "SoundCloud",
+                "Official Video", "Official Audio", "Lyrics", "Audio", "Visualizer",
+                "[YouTube]", "[Official Audio]", "[Lyrics]",
+                "(Official Video)", "(Lyrics)", "(Audio)"
+            };
+
+            foreach (var j in junk)
+            {
+                while (cleaned.Contains(j, StringComparison.OrdinalIgnoreCase))
+                    cleaned = cleaned.Replace(j, "", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // 3) Remove now-empty brackets
+            cleaned = cleaned.Replace("()", "").Replace("[]", "").Replace("{}", "");
+
+            // 4) Collapse extra spaces
+            while (cleaned.Contains("  ")) cleaned = cleaned.Replace("  ", " ");
+
+            cleaned = cleaned.Trim();
+
+            // 5) Clean trailing separators left behind (e.g., " - ", "-", ":", etc.)
+            char[] trail = { '-', '–', '—', ':', '|', '.', ' ' };
+            while (cleaned.Length > 0 && trail.Contains(cleaned[^1])) cleaned = cleaned[..^1].TrimEnd();
+
+            return cleaned;
+        }
+
+        private void LoadWatchedFolders()
+        {
+            try
+            {
+                if (File.Exists(WatchedFoldersFile))
+                {
+                    var json = File.ReadAllText(WatchedFoldersFile);
+                    watchedFolders = JsonSerializer.Deserialize<List<string>>(json) ?? new();
+                }
+                else
+                {
+                    watchedFolders = new();
+                }
+            }
+            catch
+            {
+                watchedFolders = new();
+            }
+        }
+
+        private void SaveWatchedFolders()
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(watchedFolders, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(WatchedFoldersFile, json);
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Failed to save watched folders: {ex.Message}");
+            }
+        }
+
+        private void RefreshWatchedFoldersUI()
+        {
+            WatchedFoldersListBox.ItemsSource = null;
+            WatchedFoldersListBox.ItemsSource = watchedFolders.ToList();
+        }
+
+        private async void AddWatchFolderButton_Click(object? sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFolderDialog { Title = "Add Watched Folder" };
+            var folderPath = await dialog.ShowAsync(this);
+            if (string.IsNullOrWhiteSpace(folderPath)) return;
+
+            var path = Path.GetFullPath(folderPath);
+            if (!Directory.Exists(path))
+            {
+                ShowMessage("Folder does not exist.");
+                return;
+            }
+            if (watchedFolders.Any(p => string.Equals(p, path, StringComparison.OrdinalIgnoreCase)))
+            {
+                ShowMessage("Folder is already being watched.");
+                return;
+            }
+
+            watchedFolders.Add(path);
+            SaveWatchedFolders();
+            RefreshWatchedFoldersUI();
+        }
+
+        private void RemoveWatchFolderButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (WatchedFoldersListBox.SelectedItems == null || WatchedFoldersListBox.SelectedItems.Count == 0)
+                return;
+
+            var selected = WatchedFoldersListBox.SelectedItems.Cast<string>().ToList();
+            watchedFolders = watchedFolders
+                .Where(p => !selected.Contains(p, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            SaveWatchedFolders();
+            RefreshWatchedFoldersUI();
+        }
+
+        private void ScanWatchedFoldersButton_Click(object? sender, RoutedEventArgs e)
+        {
+            if (watchedFolders.Count == 0)
+            {
+                ShowMessage("No watched folders.");
+                return;
+            }
+
+            int totalAdded = 0;
+
+            foreach (var folder in watchedFolders)
+            {
+                try
+                {
+                    if (Directory.Exists(folder))
+                    {
+                        // suppress per-folder refresh & messages
+                        totalAdded += AddSongsFromDirectory(folder, saveAndRefresh: false, showMessage: false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowMessage($"Error scanning '{folder}': {ex.Message}");
+                }
+            }
+
+            if (totalAdded > 0)
+            {
+                SaveSongs();
+                RefreshUI();
+                FilterFromDropdown();
+                FilterToDropdown();
+                FilterViewDropdown();
+            }
+
+            ShowMessage(totalAdded > 0
+                ? $"Imported {totalAdded} new songs from watched folders."
+                : "No new songs found in watched folders.");
         }
     }
 }

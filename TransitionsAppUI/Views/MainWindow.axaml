@@ -4,126 +4,250 @@
         Title="🎵 Song Transition Manager"
         Width="1000" Height="700"
         MinWidth="800" MinHeight="600"
-        Background="#1e1e2f"
-        Padding="20">
+        Background="#0f1220"
+        Padding="16">
+
+  <!-- THEME TOKENS (visuals only) -->
+  <Window.Resources>
+    <!-- palette -->
+    <SolidColorBrush x:Key="Bg"             Color="#0f1220"/>
+    <SolidColorBrush x:Key="Surface"        Color="#151a2b"/>
+    <SolidColorBrush x:Key="Card"           Color="#1a2140"/>
+    <SolidColorBrush x:Key="Border"         Color="#2a3456"/>
+    <SolidColorBrush x:Key="Text"           Color="#e9ecfa"/>
+    <SolidColorBrush x:Key="TextDim"        Color="#b3bdd6"/>
+    <SolidColorBrush x:Key="Accent"         Color="#7aa2f7"/>
+    <SolidColorBrush x:Key="AccentDark"     Color="#5f86db"/>
+    <SolidColorBrush x:Key="Success"        Color="#5fc39a"/>
+    <SolidColorBrush x:Key="Info"           Color="#6aaed6"/>
+    <SolidColorBrush x:Key="Danger"         Color="#e06c75"/>
+    <SolidColorBrush x:Key="InputBg"        Color="#111730"/>
+
+    <!-- sizing -->
+    <Thickness    x:Key="Pad">14</Thickness>
+    <CornerRadius x:Key="Radius">10</CornerRadius>
+  </Window.Resources>
+
+  <!-- GLOBAL STYLES -->
+  <Window.Styles>
+    <!-- text -->
+    <Style Selector="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="TextBlock.h2">
+      <Setter Property="FontSize" Value="17"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+    <Style Selector="TextBlock.dim">
+      <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+    </Style>
+
+    <!-- containers/cards -->
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{StaticResource Card}"/>
+      <Setter Property="Padding" Value="{StaticResource Pad}"/>
+      <Setter Property="CornerRadius" Value="{StaticResource Radius}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <!-- inputs -->
+    <Style Selector="TextBox, ComboBox, CheckBox">
+      <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+    <Style Selector="TextBox, ComboBox">
+      <Setter Property="Background" Value="{StaticResource InputBg}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="{StaticResource Radius}"/>
+      <Setter Property="Padding" Value="10,8"/>
+    </Style>
+    <Style Selector="TextBox:pointerover, ComboBox:pointerover">
+      <Setter Property="BorderBrush" Value="{StaticResource Accent}"/>
+    </Style>
+
+    <!-- list -->
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="{StaticResource InputBg}"/>
+      <Setter Property="Foreground" Value="{StaticResource Text}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="{StaticResource Radius}"/>
+      <Setter Property="MinHeight" Value="220"/>
+    </Style>
+
+    <!-- buttons (base) -->
+    <Style Selector="Button">
+      <Setter Property="Foreground" Value="{StaticResource Text}"/>
+      <Setter Property="Background" Value="#20284a"/>
+      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="{StaticResource Radius}"/>
+      <Setter Property="Padding" Value="10,8"/>
+    </Style>
+    <Style Selector="Button:pointerover">
+      <Setter Property="BorderBrush" Value="{StaticResource Accent}"/>
+    </Style>
+    <Style Selector="Button:pressed">
+      <Setter Property="Background" Value="#1c2444"/>
+    </Style>
+
+    <!-- button variants via Classes -->
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="{StaticResource Accent}"/>
+      <Setter Property="Foreground" Value="#0b1022"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentDark}"/>
+    </Style>
+    <Style Selector="Button.success">
+      <Setter Property="Background" Value="{StaticResource Success}"/>
+      <Setter Property="Foreground" Value="#0b1022"/>
+    </Style>
+    <Style Selector="Button.info">
+      <Setter Property="Background" Value="{StaticResource Info}"/>
+      <Setter Property="Foreground" Value="#0b1022"/>
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="{StaticResource Danger}"/>
+      <Setter Property="Foreground" Value="#0b1022"/>
+    </Style>
+  </Window.Styles>
 
   <DockPanel LastChildFill="True">
 
     <!-- Top Header -->
-    <StackPanel Orientation="Horizontal"
-                DockPanel.Dock="Top"
-                Margin="0 0 0 12"
-                Spacing="10">
-      <Image Source="avares://TransitionsAppUI/Assets/logo.png"
-             Width="32" Height="32"/>
-      <TextBlock Text="Song Transition Manager"
-                 FontSize="20"
-                 FontWeight="Bold"
-                 Foreground="White"
-                 VerticalAlignment="Center"/>
-    </StackPanel>
+    <Border DockPanel.Dock="Top"
+            Background="{StaticResource Surface}"
+            CornerRadius="{StaticResource Radius}"
+            Padding="12"
+            BorderBrush="{StaticResource Border}"
+            BorderThickness="1"
+            Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Image Source="avares://TransitionsAppUI/Assets/logo.png" Width="32" Height="32"/>
+        <TextBlock Text="Transition App" Classes="h1" VerticalAlignment="Center"/>
+        <TextBlock Text="remembers transitions, so you don't have to" Classes="dim" Margin="8,0,0,0" VerticalAlignment="Center"/>
+      </StackPanel>
+    </Border>
 
     <!-- Add + Import Section -->
-    <StackPanel Orientation="Horizontal"
-                DockPanel.Dock="Top"
-                Spacing="16"
-                Margin="0 0 0 12">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="3*,Auto" ColumnSpacing="12" Margin="0,0,0,12">
       <!-- Add Song -->
-      <Border Background="#2a2a3a" Padding="14" CornerRadius="8" HorizontalAlignment="Stretch" MinWidth="600">
+      <!-- <Border Classes="card">
         <StackPanel>
-          <TextBlock Text="🎶 Add New Song" FontSize="17" FontWeight="Bold" Foreground="White"/>
-          <UniformGrid Columns="4" ColumnSpacing="8" Margin="0,8,0,0">
+          <TextBlock Text="🎶 Add New Song" Classes="h2"/>
+          <Grid ColumnDefinitions="*,120,160,Auto" ColumnSpacing="8" Margin="0,8,0,0">
             <TextBox Name="NameTextBox" Watermark="Song Name"/>
-            <TextBox Name="BpmTextBox" Watermark="BPM"/>
-            <TextBox Name="KeyTextBox" Watermark="Key (e.g. A Minor)"/>
-            <Button Name="AddSongButton" Content="Add Song"/>
-          </UniformGrid>
+            <TextBox Name="BpmTextBox" Watermark="BPM" Grid.Column="1"/>
+            <TextBox Name="KeyTextBox" Watermark="Key (e.g. A Minor)" Grid.Column="2"/>
+            <Button Name="AddSongButton" Content="Add Song" Grid.Column="3" Classes="accent"/>
+          </Grid>
         </StackPanel>
-      </Border>
+      </Border> -->
 
       <!-- Import -->
-      <Border Background="#2a2a3a" Padding="14" CornerRadius="8" VerticalAlignment="Bottom">
+      <!-- <Border Classes="card" Grid.Column="1" Padding="10">
         <Button Name="ImportFolderButton"
                 Content="📂 Import Songs from Folder"
-                Background="#3a3a4a"
-                Foreground="White"
-                FontWeight="Bold"
-                Padding="8,4"
-                MinWidth="180"
-                CornerRadius="6"/>
-      </Border>
-    </StackPanel>
+                Classes="accent"/>
+      </Border> -->
+    </Grid>
 
     <!-- Main Content Layout -->
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-      <Grid ColumnDefinitions="3*,3*,2*" ColumnSpacing="16"
-            RowDefinitions="*"
-            VerticalAlignment="Stretch">
+      <Grid ColumnDefinitions="3*,3*,2*" ColumnSpacing="12" RowDefinitions="*">
 
         <!-- Column 1: Song Management -->
-        <StackPanel Grid.Column="0" Spacing="16" VerticalAlignment="Stretch">
-          <!-- Search -->
-          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
+        <StackPanel Grid.Column="0" Spacing="12" VerticalAlignment="Stretch">
+
+          <!-- NEW: Watched Folders -->
+          <Border Classes="card">
             <StackPanel Spacing="10">
-              <TextBlock Text="🔍 Search Songs" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <TextBlock Text="📁 Watched Folders" Classes="h2"/>
+              <ListBox Name="WatchedFoldersListBox" MinHeight="50"
+         MaxHeight="100" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Name="AddWatchFolderButton" Content="Add Folder" Classes="accent"/>
+                <Button Name="RemoveWatchFolderButton" Content="Remove" Classes="danger"/>
+                <Button Name="ScanWatchedFoldersButton" Content="Scan Now" Classes="info"/>
+              </StackPanel>
+              <CheckBox Name="AutoWatchToggle" Content="Auto-add new tracks when folders change" IsChecked="True"/>
+            </StackPanel>
+          </Border>
+
+          <!-- Search -->
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="🔍 Search Songs List" Classes="h2"/>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBox Name="SearchTextBox" Watermark="Search by Name"/>
-                <Button Name="SearchButton" Content="Search"/>
-                <Button x:Name="ClearSearchButton" Content="Clear" Click="ClearSearchButton_Click" />
+                <Button Name="SearchButton" Content="Search" Classes="accent"/>
+                <Button x:Name="ClearSearchButton" Content="Clear" Click="ClearSearchButton_Click"/>
               </StackPanel>
             </StackPanel>
           </Border>
 
           <!-- Songs List -->
-          <Border Background="#2a2a3a" CornerRadius="8" Padding="14" VerticalAlignment="Stretch">
+          <Border Classes="card" VerticalAlignment="Stretch">
             <StackPanel Spacing="10" VerticalAlignment="Stretch">
-              <TextBlock Text="🎵 Songs List" FontSize="17" FontWeight="Bold" Foreground="White"/>
-              <Button Name="AddFromSongListButton" Content="➕ Add to Set List"/>
-              <ListBox Name="SongsListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
+              <TextBlock Text="🎵 Songs List" Classes="h2"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Name="AddFromSongListButton" Content="➕ Add to Set List" Classes="success"/>
+                <Button x:Name="RemoveSongButton" Content="Remove Song" Click="RemoveSongButton_Click" Classes="danger"/>
+              </StackPanel>
+              <ListBox Name="SongsListBox" MinHeight="180"
+         MaxHeight="280" VerticalAlignment="Stretch" SelectionMode="Multiple" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
             </StackPanel>
           </Border>
         </StackPanel>
 
         <!-- Column 2: Transitions -->
-        <StackPanel Grid.Column="1" Spacing="16" VerticalAlignment="Stretch">
+        <StackPanel Grid.Column="1" Spacing="12" VerticalAlignment="Stretch">
           <!-- Link Songs -->
-          <Border Background="#2a2a3a" CornerRadius="8" Padding="14">
+          <Border Classes="card">
             <StackPanel Spacing="10">
-              <TextBlock Text="🔗 Link Songs for Transition" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <TextBlock Text="🔗 Link Songs for Transition" Classes="h2"/>
               <UniformGrid Columns="2" Rows="2" ColumnSpacing="10" RowSpacing="10">
                 <TextBox Name="FromSearchBox" Watermark="Search From Song"/>
                 <TextBox Name="ToSearchBox" Watermark="Search To Song"/>
                 <ComboBox Name="FromSongComboBox"/>
                 <ComboBox Name="ToSongComboBox"/>
               </UniformGrid>
-              <Button Name="LinkButton" Content="Link Songs" Width="120" HorizontalAlignment="Left"/>
+              <Button Name="LinkButton" Content="Link Songs" Width="120" HorizontalAlignment="Left" Classes="accent"/>
             </StackPanel>
           </Border>
 
           <!-- View Transitions -->
-          <Border Background="#2a2a3a" CornerRadius="8" Padding="14" VerticalAlignment="Stretch">
+          <Border Classes="card" VerticalAlignment="Stretch">
             <StackPanel Spacing="10" VerticalAlignment="Stretch">
-              <TextBlock Text="➡️ View Transitions from Song" FontSize="17" FontWeight="Bold" Foreground="White"/>
+              <TextBlock Text="➡️ View Transitions from Song" Classes="h2"/>
               <UniformGrid Columns="2" ColumnSpacing="10">
                 <TextBox Name="ViewSearchBox" Watermark="Search View Song"/>
                 <ComboBox Name="ViewTransitionsComboBox"/>
               </UniformGrid>
               <Button Name="ViewTransitionsButton" Content="View Transitions" Width="160" Margin="0,6,0,0"/>
-              <ListBox Name="TransitionsListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
-              <Button Name="AddFromTransitionListButton" Content="➕ Add to Set List"/>
+              <ListBox Name="TransitionsListBox" MinHeight="180"
+         MaxHeight="280" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+              <Button Name="AddFromTransitionListButton" Content="➕ Add to Set List" Classes="success"/>
             </StackPanel>
           </Border>
         </StackPanel>
 
         <!-- Column 3: Set List -->
-        <Border Grid.Column="2" Background="#2a2a3a" CornerRadius="8" Padding="16" VerticalAlignment="Stretch">
-          <StackPanel Spacing="14" VerticalAlignment="Stretch">
-            <TextBlock Text="📝 Set List" FontSize="18" FontWeight="Bold" Foreground="White"/>
-            <ListBox Name="SetListBox" Background="#1e1e2f" Foreground="White" VerticalAlignment="Stretch"/>
-            <Button Name="RemoveSelectedSetListButton" Content="❌ Remove Selected" Background="#993333" Foreground="White"/>
-            <Button Name="SaveSetListButton" Content="💾 Save Set List" Background="#2e8b57" Foreground="White"/>
-            <Button Name="LoadSetListButton" Content="📂 Load Set List" Background="#336699" Foreground="White"/>
-            <Button Name="ClearSetListButton" Content="🗑 Clear Set List" Background="#4a4a4a" Foreground="White"/>
+        <Border Grid.Column="2" Classes="card" VerticalAlignment="Stretch">
+          <StackPanel Spacing="12" VerticalAlignment="Stretch">
+            <TextBlock Text="📝 Set List" FontSize="18" FontWeight="Bold"/>
+            <ListBox Name="SetListBox" MinHeight="180"
+         MaxHeight="280" VerticalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <Button Name="RemoveSelectedSetListButton" Content="❌ Remove Selected" Classes="danger"/>
+            <Button Name="SaveSetListButton" Content="💾 Save Set List" Classes="success"/>
+            <Button Name="LoadSetListButton" Content="📂 Load Set List" Classes="info"/>
+            <Button Name="ClearSetListButton" Content="🗑 Clear Set List"/>
           </StackPanel>
         </Border>
 
