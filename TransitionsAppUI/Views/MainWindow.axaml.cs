@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TransitionsAppUI.Services;
 
 namespace TransitionsAppUI
 {
@@ -21,13 +22,17 @@ namespace TransitionsAppUI
         private List<string> watchedFolders = new();
         private string WatchedFoldersFile => Path.Combine(AppContext.BaseDirectory, "watchedFolders.json");
 
+        private string? rekordboxXmlPath;
+        private string RekordboxPathFile => Path.Combine(AppContext.BaseDirectory, "rekordboxPath.txt");
+
         public MainWindow()
         {
             InitializeComponent();
 
             LoadSongs();
             LoadTransitions();
-            LoadWatchedFolders(); 
+            LoadWatchedFolders();
+            LoadRekordboxPath();
             RefreshUI();
 
             //AddSongButton.Click += AddSongButton_Click;
@@ -52,6 +57,10 @@ namespace TransitionsAppUI
             AddWatchFolderButton.Click += AddWatchFolderButton_Click;
             RemoveWatchFolderButton.Click += RemoveWatchFolderButton_Click;
             ScanWatchedFoldersButton.Click += ScanWatchedFoldersButton_Click;
+
+            BrowseRekordboxButton.Click += async (_, __) => await BrowseRekordboxXml();
+            ImportRekordboxButton.Click += async (_, __) => await ImportFromRekordbox();
+            ExportRekordboxButton.Click += async (_, __) => await ExportToRekordbox();
         }
 
         // private void AddSongButton_Click(object? sender, RoutedEventArgs e)
@@ -675,6 +684,136 @@ namespace TransitionsAppUI
             ShowMessage(totalAdded > 0
                 ? $"Imported {totalAdded} new songs from watched folders."
                 : "No new songs found in watched folders.");
+        }
+
+        // ── Rekordbox ──────────────────────────────────────────────────────────
+
+        private void LoadRekordboxPath()
+        {
+            if (File.Exists(RekordboxPathFile))
+                rekordboxXmlPath = File.ReadAllText(RekordboxPathFile).Trim();
+
+            UpdateRekordboxPathLabel();
+        }
+
+        private void UpdateRekordboxPathLabel()
+        {
+            var label = this.FindControl<TextBlock>("RekordboxPathLabel");
+            if (label == null) return;
+            label.Text = string.IsNullOrEmpty(rekordboxXmlPath)
+                ? "No file linked"
+                : rekordboxXmlPath;
+        }
+
+        private void SetRekordboxStatus(string msg)
+        {
+            var label = this.FindControl<TextBlock>("RekordboxStatusLabel");
+            if (label != null) label.Text = msg;
+        }
+
+        private async Task BrowseRekordboxXml()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select Rekordbox XML File",
+                AllowMultiple = false,
+                Filters = new List<FileDialogFilter>
+                {
+                    new FileDialogFilter { Name = "Rekordbox XML", Extensions = { "xml" } },
+                    new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                }
+            };
+
+            var paths = await dialog.ShowAsync(this);
+            if (paths == null || paths.Length == 0) return;
+
+            rekordboxXmlPath = paths[0];
+            File.WriteAllText(RekordboxPathFile, rekordboxXmlPath);
+            UpdateRekordboxPathLabel();
+            SetRekordboxStatus("XML file linked.");
+        }
+
+        private async Task ImportFromRekordbox()
+        {
+            // If no path set, ask first
+            if (string.IsNullOrEmpty(rekordboxXmlPath) || !File.Exists(rekordboxXmlPath))
+            {
+                await BrowseRekordboxXml();
+                if (string.IsNullOrEmpty(rekordboxXmlPath) || !File.Exists(rekordboxXmlPath))
+                    return;
+            }
+
+            try
+            {
+                var imported = RekordboxService.ImportSongs(rekordboxXmlPath);
+
+                int added = 0;
+                foreach (var track in imported)
+                {
+                    // Match by name (case-insensitive) to avoid duplicates
+                    bool exists = songs.Any(s => s.Name.Equals(track.Name, StringComparison.OrdinalIgnoreCase));
+                    if (!exists)
+                    {
+                        songs.Add(track);
+                        added++;
+                    }
+                    else
+                    {
+                        // Update BPM/Key/RekordboxTrackId/FilePath on existing entry
+                        var existing = songs.First(s => s.Name.Equals(track.Name, StringComparison.OrdinalIgnoreCase));
+                        if (track.Bpm > 0 && existing.Bpm == 0) existing.Bpm = track.Bpm;
+                        if (!string.IsNullOrEmpty(track.Key) && string.IsNullOrEmpty(existing.Key)) existing.Key = track.Key;
+                        if (track.RekordboxTrackId.HasValue && !existing.RekordboxTrackId.HasValue) existing.RekordboxTrackId = track.RekordboxTrackId;
+                        if (!string.IsNullOrEmpty(track.FilePath) && string.IsNullOrEmpty(existing.FilePath)) existing.FilePath = track.FilePath;
+                    }
+                }
+
+                SaveSongs();
+                RefreshUI();
+                FilterFromDropdown();
+                FilterToDropdown();
+                FilterViewDropdown();
+
+                SetRekordboxStatus($"Imported {added} new tracks ({imported.Count} total in XML).");
+                ShowMessage($"Rekordbox import complete.\n{added} new songs added.\n{imported.Count - added} already existed (metadata updated).");
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Import failed: {ex.Message}");
+            }
+        }
+
+        private async Task ExportToRekordbox()
+        {
+            if (songs.Count == 0)
+            {
+                ShowMessage("No songs to export.");
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Rekordbox XML",
+                Filters = new List<FileDialogFilter>
+                {
+                    new FileDialogFilter { Name = "Rekordbox XML", Extensions = { "xml" } }
+                },
+                InitialFileName = "TransitionsApp.xml"
+            };
+
+            var filePath = await dialog.ShowAsync(this);
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+
+            try
+            {
+                RekordboxService.ExportPlaylists(filePath, songs, transitions, setList.Count > 0 ? setList : null);
+                SetRekordboxStatus($"Exported to {Path.GetFileName(filePath)}");
+                ShowMessage($"Export complete!\n\nTo load in Rekordbox:\nFile > Import > rekordbox xml\n\nFile saved to:\n{filePath}");
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Export failed: {ex.Message}");
+            }
         }
     }
 }
