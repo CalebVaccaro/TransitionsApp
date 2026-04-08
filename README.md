@@ -42,7 +42,6 @@ I'm a DJ who's been chasing that perfect flow between tracks since I started spi
 
 ## ⚡️ Coming Soon
 
-- Tagging by mood or energy  
 - Rekordbox Integration (BPM and key detection, etc.) - **WIP**
 
 ---
