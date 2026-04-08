@@ -6,6 +6,8 @@ public class Song
     public string Name { get; set; }
     public int Bpm { get; set; }
     public string Key { get; set; }
+    public int? RekordboxTrackId { get; set; }
+    public string? FilePath { get; set; }
 
     public void Display()
     {

@@ -180,6 +180,24 @@
             </StackPanel>
           </Border>
 
+          <!-- Rekordbox Integration -->
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="🎛 Rekordbox" Classes="h2"/>
+              <TextBlock Name="RekordboxPathLabel"
+                         Text="No file linked"
+                         Classes="dim"
+                         TextTrimming="CharacterEllipsis"
+                         ToolTip.Tip="{Binding #RekordboxPathLabel.Text}"/>
+              <StackPanel Orientation="Horizontal" Spacing="8" IsEnabled="True">
+                <Button Name="BrowseRekordboxButton" Content="Browse XML" Classes="accent"/>
+                <Button Name="ImportRekordboxButton" Content="Import Songs"/>
+                <Button Name="ExportRekordboxButton" Content="Export Playlists" Classes="success"/>
+              </StackPanel>
+              <TextBlock Name="RekordboxStatusLabel" Text="" Classes="dim" FontSize="11"/>
+            </StackPanel>
+          </Border>
+
           <!-- Search -->
           <Border Classes="card">
             <StackPanel Spacing="10">
