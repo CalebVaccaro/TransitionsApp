@@ -1,6 +1,6 @@
 ﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using System;
-using Tmds.DBus.Protocol;
 
 namespace TransitionsAppUI;
 
