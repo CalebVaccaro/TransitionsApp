@@ -61,6 +61,33 @@ namespace TransitionsAppUI
             BrowseRekordboxButton.Click += async (_, __) => await BrowseRekordboxXml();
             ImportRekordboxButton.Click += async (_, __) => await ImportFromRekordbox();
             ExportRekordboxButton.Click += async (_, __) => await ExportToRekordbox();
+
+            OpenQuickLinkButton.Click += (_, __) => OpenQuickLink();
+        }
+
+        private QuickLinkWindow? _quickLinkWindow;
+
+        private void OpenQuickLink()
+        {
+            // If already open, bring it to front
+            if (_quickLinkWindow != null && _quickLinkWindow.IsVisible)
+            {
+                _quickLinkWindow.Activate();
+                return;
+            }
+
+            _quickLinkWindow = new QuickLinkWindow(
+                songs,
+                transitions,
+                SongsFile,
+                TransitionsFile,
+                onTransitionSaved: () =>
+                {
+                    // Reload transitions from the shared list and refresh main UI
+                    RefreshUI();
+                });
+
+            _quickLinkWindow.Show();
         }
 
         // private void AddSongButton_Click(object? sender, RoutedEventArgs e)
