@@ -128,11 +128,18 @@
             BorderBrush="{StaticResource Border}"
             BorderThickness="1"
             Margin="0,0,0,12">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <Image Source="avares://TransitionsAppUI/Assets/logo.png" Width="32" Height="32"/>
-        <TextBlock Text="Transition App" Classes="h1" VerticalAlignment="Center"/>
-        <TextBlock Text="remembers transitions, so you don't have to" Classes="dim" Margin="8,0,0,0" VerticalAlignment="Center"/>
-      </StackPanel>
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="10" Grid.Column="0">
+          <Image Source="avares://TransitionsAppUI/Assets/logo.png" Width="32" Height="32"/>
+          <TextBlock Text="Transition App" Classes="h1" VerticalAlignment="Center"/>
+          <TextBlock Text="remembers transitions, so you don't have to" Classes="dim" Margin="8,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button Name="OpenQuickLinkButton"
+                Grid.Column="2"
+                Content="🔗 Quick Link"
+                ToolTip.Tip="Open a small always-on-top window so you can link songs without leaving Rekordbox"
+                Classes="accent"/>
+      </Grid>
     </Border>
 
     <!-- Add + Import Section -->
